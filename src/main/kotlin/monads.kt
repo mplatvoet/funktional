@@ -1,12 +1,12 @@
 package nl.mplatvoet.monads
 
 public trait Monad<A> {
-    fun bind<B>(fn: (A) -> B): Monad<B>
+    fun map<B>(fn: (A) -> B): Monad<B>
 }
 
 
 public open class Just<A>(val value: A) : Monad<A> {
-    override fun <B> bind(fn: (A) -> B): Monad<B> = Just(fn(value))
+    override fun <B> map(fn: (A) -> B): Monad<B> = Just(fn(value))
 }
 
 public trait Option<A> : Monad<A> {
@@ -14,15 +14,15 @@ public trait Option<A> : Monad<A> {
         fun of<A : Any>(value: A?): Option<A> = if (value == null) None() else Some(value)
     }
 
-    override fun bind<B>(fn: (A) -> B): Option<B>
+    override fun map<B>(fn: (A) -> B): Option<B>
 }
 
 public class None<A> : Option<A> {
-    override fun <B> bind(fn: (A) -> B): Option<B> = None()
+    override fun <B> map(fn: (A) -> B): Option<B> = None()
 }
 
 public class Some<A>(value: A) : Just<A>(value), Option<A> {
-    override fun <B> bind(fn: (A) -> B): Option<B> = Some(fn(value))
+    override fun <B> map(fn: (A) -> B): Option<B> = Some(fn(value))
 }
 
 
@@ -32,23 +32,23 @@ public trait Either<A, B> : Monad<B> {
         fun <A, B> right(value: B) = Right<A, B>(value)
     }
 
-    override fun bind<C>(fn: (B) -> C): Either<A, C>
+    override fun map<C>(fn: (B) -> C): Either<A, C>
 }
 
 public open class Left<A, B>(val value: A) : Either<A, B> {
-    override fun bind<C>(fn: (B) -> C): Either<A, C> = Left<A, C>(value)
+    override fun map<C>(fn: (B) -> C): Either<A, C> = Left<A, C>(value)
 }
 
 public open class Right<A, B>(val value: B) : Either<A, B> {
-    override fun bind<C>(fn: (B) -> C): Either<A, C> = Right<A, C>(fn(value))
+    override fun map<C>(fn: (B) -> C): Either<A, C> = Right<A, C>(fn(value))
 }
 
 public trait Try<A> : Either<Throwable, A> {
-    override fun bind<B>(fn: (A) -> B): Try<B>
+    override fun map<B>(fn: (A) -> B): Try<B>
 }
 
 public class Success<A>(value: A) : Right<Throwable, A> (value), Try<A> {
-    override fun <B> bind(fn: (A) -> B): Try<B> = try {
+    override fun <B> map(fn: (A) -> B): Try<B> = try {
         Success(fn(value))
     } catch (t: Throwable) {
         Failure(t)
@@ -56,5 +56,5 @@ public class Success<A>(value: A) : Right<Throwable, A> (value), Try<A> {
 }
 
 public class Failure<A>(value: Throwable) : Left<Throwable, A> (value), Try<A> {
-    override fun <B> bind(fn: (A) -> B): Try<B> = Failure(value)
+    override fun <B> map(fn: (A) -> B): Try<B> = Failure(value)
 }
