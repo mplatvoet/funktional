@@ -4,14 +4,9 @@ public trait Monad<A> {
     fun bind<B>(fn: (A) -> B): Monad<B>
 }
 
-public fun <A> Monad<A>.fold(value: A, fn : (A, A) -> A) : Monad<A> = bind {
-    fn (value, it)
-}
-
 
 public open class Just<A>(val value: A) : Monad<A> {
     override fun <B> bind(fn: (A) -> B): Monad<B> = Just(fn(value))
-
 }
 
 public trait Option<A> : Monad<A> {
