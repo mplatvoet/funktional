@@ -1,15 +1,15 @@
 package nl.mplatvoet.monads
 
-public trait Monad<A> {
-    fun map<B>(fn: (A) -> B): Monad<B>
+public trait Functor<A> {
+    fun map<B>(fn: (A) -> B): Functor<B>
 }
 
 
-public open class Just<A>(val value: A) : Monad<A> {
-    override fun <B> map(fn: (A) -> B): Monad<B> = Just(fn(value))
+public open class Just<A>(val value: A) : Functor<A> {
+    override fun <B> map(fn: (A) -> B): Functor<B> = Just(fn(value))
 }
 
-public trait Option<A> : Monad<A> {
+public trait Option<A> : Functor<A> {
     companion object {
         fun of<A : Any>(value: A?): Option<A> = if (value == null) None() else Some(value)
     }
@@ -26,7 +26,7 @@ public class Some<A>(value: A) : Just<A>(value), Option<A> {
 }
 
 
-public trait Either<A, B> : Monad<B> {
+public trait Either<A, B> : Functor<B> {
     companion object {
         fun <A, B> left(value: A) = Left<A, B>(value)
         fun <A, B> right(value: B) = Right<A, B>(value)
