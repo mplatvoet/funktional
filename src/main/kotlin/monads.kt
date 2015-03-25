@@ -4,6 +4,14 @@ public trait Functor<A> {
     fun map<B>(fn: (A) -> B): Functor<B>
 }
 
+public trait Monad<A> {
+    fun bind<B>(fn: (A) -> Functor<B>) : Functor<B>
+}
+
+public trait Applicative<A> {
+    fun apply<B>(fn: (Functor<A>) -> B) : Functor<B>
+}
+
 
 public open class Just<A>(val value: A) : Functor<A> {
     override fun <B> map(fn: (A) -> B): Functor<B> = Just(fn(value))
