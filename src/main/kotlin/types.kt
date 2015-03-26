@@ -5,7 +5,7 @@ public trait Functor<A : Any> {
 }
 
 public trait Monad<A : Any> {
-    fun bind<B : Any>(fn: (A) -> Functor<B>): Functor<B>
+    fun bind<B : Any>(fn: (A) -> Monad<B>): Monad<B>
 }
 
 public trait Applicative<A : Any> {
@@ -14,7 +14,7 @@ public trait Applicative<A : Any> {
 
 
 public open class Just<A>(val value: A) : Functor<A> {
-    override fun <B : Any> map(fn: (A) -> B): Functor<B> = Just(fn(value))
+    override fun <B : Any> map(fn: (A) -> B): Just<B> = Just(fn(value))
 }
 
 public trait Option<A : Any> : Functor<A> {
@@ -30,7 +30,7 @@ public class None<A> : Option<A> {
 }
 
 public class Some<A>(value: A) : Just<A>(value), Option<A> {
-    override fun <B : Any> map(fn: (A) -> B): Option<B> = Some(fn(value))
+    override fun <B : Any> map(fn: (A) -> B): Some<B> = Some(fn(value))
 }
 
 
@@ -44,11 +44,11 @@ public trait Either<A : Any, B : Any> : Functor<B> {
 }
 
 public open class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
-    override fun map<C : Any>(fn: (B) -> C): Either<A, C> = Left<A, C>(value)
+    override fun map<C : Any>(fn: (B) -> C): Left<A, C> = Left<A, C>(value)
 }
 
 public open class Right<A : Any, B : Any>(val value: B) : Either<A, B> {
-    override fun map<C : Any>(fn: (B) -> C): Either<A, C> = Right<A, C>(fn(value))
+    override fun map<C : Any>(fn: (B) -> C): Right<A, C> = Right<A, C>(fn(value))
 }
 
 public trait Try<A : Any> : Either<Throwable, A> {
@@ -56,13 +56,9 @@ public trait Try<A : Any> : Either<Throwable, A> {
 }
 
 public class Success<A : Any>(value: A) : Right<Throwable, A> (value), Try<A> {
-    override fun <B : Any> map(fn: (A) -> B): Try<B> = try {
-        Success(fn(value))
-    } catch (t: Throwable) {
-        Failure(t)
-    }
+    override fun <B : Any> map(fn: (A) -> B): Success<B> = Success(fn(value))
 }
 
 public class Failure<A : Any>(value: Throwable) : Left<Throwable, A> (value), Try<A> {
-    override fun <B : Any> map(fn: (A) -> B): Try<B> = Failure(value)
+    override fun <B : Any> map(fn: (A) -> B): Failure<B> = Failure(value)
 }
