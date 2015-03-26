@@ -1,15 +1,15 @@
-package nl.mplatvoet.monads
+package nl.mplatvoet.funktional.types
 
-public trait Functor<A> {
+public trait Functor<A : Any> {
     fun map<B>(fn: (A) -> B): Functor<B>
 }
 
-public trait Monad<A> {
-    fun bind<B>(fn: (A) -> Functor<B>) : Functor<B>
+public trait Monad<A : Any> {
+    fun bind<B>(fn: (A) -> Functor<B>): Functor<B>
 }
 
-public trait Applicative<A> {
-    fun apply<B>(fn: (Functor<A>) -> B) : Functor<B>
+public trait Applicative<A : Any> {
+    fun apply<B>(f: Functor<(A) -> B>): Functor<B>
 }
 
 
