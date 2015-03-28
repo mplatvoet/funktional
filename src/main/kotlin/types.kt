@@ -51,12 +51,15 @@ public open class Right<A : Any, B : Any>(value: B) : Either<A, B>, Some<B>(valu
 
 public trait Try<A : Any> : Functor<A> {
     override fun map<B : Any>(fn: (A) -> B): Try<B>
+    fun bind<B : Any>(fn: (A) -> Try<B>): Try<B>
 }
 
 public class Success<A : Any>(value: A) : Just<A>(value), Try<A> {
     override fun <B : Any> map(fn: (A) -> B): Success<B> = Success(fn(value))
+    override fun <B : Any> bind(fn: (A) -> Try<B>): Try<B> = fn(value)
 }
 
 public class Failure<A : Any>(val value: Throwable) : Try<A> {
     override fun <B : Any> map(fn: (A) -> B): Failure<B> = Failure(value)
+    override fun <B : Any> bind(fn: (A) -> Try<B>): Try<B> = Failure(value)
 }
