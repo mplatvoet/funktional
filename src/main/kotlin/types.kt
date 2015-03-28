@@ -9,7 +9,7 @@ public trait Applicative<A : Any> {
 }
 
 
-public trait Maybe<A : Any> : Functor<A> {
+public trait Maybe<A : Any> : Functor<A>, Applicative<A> {
     companion object {
         fun of<A : Any>(value: A?): Maybe<A> = if (value == null) Nothing() else Just(value)
     }
@@ -19,12 +19,17 @@ public trait Maybe<A : Any> : Functor<A> {
 }
 
 public class Nothing<A> : Maybe<A> {
+    override fun <B : Any> apply(f: Functor<(A) -> B>): Maybe<B> = Nothing()
     override fun <B : Any> map(fn: (A) -> B): Maybe<B> = Nothing()
     override fun bind<B : Any>(fn: (A) -> Maybe<B>): Nothing<B> = Nothing()
     override fun toString(): String = "[Nothing]"
 }
 
 public open class Just<A>(val value: A) : Maybe<A> {
+    override fun <B : Any> apply(f: Functor<(A) -> B>): Maybe<B> = when(f) {
+        is Just -> Just(f.value(value))
+        else -> Nothing()
+    }
     override fun <B : Any> map(fn: (A) -> B): Just<B> = Just(fn(value))
     override fun bind<B : Any>(fn: (A) -> Maybe<B>): Maybe<B> = fn(value)
     override fun toString(): String = "[Just ${value}]"
