@@ -5,12 +5,9 @@ import nl.mplatvoet.funktional.types.Failure
 import nl.mplatvoet.funktional.types.Success
 import nl.mplatvoet.funktional.types.Try
 
-val halfFn =
-        fun (a: Int): Try<Int> =
-                if (a and 1 == 1) Failure(IllegalStateException("$a is uneven")) else Success(a / 2)
 
 fun main(args: Array<String>) {
-    println(Try.of(20).bind(halfFn).bind(halfFn).bind(halfFn))
+    println(Try.of(20) bind halfFn bind halfFn bind halfFn)
 
     println(divide(4, 2))
     println(divide(3, 0))
@@ -21,6 +18,10 @@ fun main(args: Array<String>) {
 
 }
 
+val halfFn =
+        fun (a: Int): Try<Int> {
+            return if (a and 1 == 1) Failure(IllegalStateException("$a is uneven")) else Success(a / 2)
+        }
 
 fun divide(x: Int, y: Int): Either<String, Int> =
         if (y == 0) Either.ofLeft("$x/$y") else Either.ofRight(x / y)
