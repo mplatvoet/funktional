@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference
 import java.util.ArrayList
 import java.util.LinkedList
 import java.util.RandomAccess
-import java.util.concurrent.atomic.AtomicReference
 
 trait Seq<A : Any> : Functor<A> {
 
@@ -62,7 +61,7 @@ class List<A : Any> : Seq<A>, kotlin.List<A> {
         }
     }
 
-    private volatile var arrayCache : WeakReference<ArrayList<A>>? = null
+    private volatile var arrayCache: WeakReference<ArrayList<A>>? = null
 
     val size: Int
     private val value: A?
@@ -100,7 +99,10 @@ class List<A : Any> : Seq<A>, kotlin.List<A> {
     override fun iterator(): Iterator<A> = listIterator()
 
     override fun containsAll(c: Collection<Any?>): Boolean {
-        if (this == c) return true;
+        if (this == c) return true
+        if (c.isEmpty()) return true
+        if (isEmpty()) return false
+
         c.forEach {
             if (it == null || !contains(it)) return false
         }
@@ -156,7 +158,26 @@ class List<A : Any> : Seq<A>, kotlin.List<A> {
         }
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (other == null) return false;
+        if (this.identityEquals(other)) return true
+        if (other !is kotlin.List<*>) return false
+        if (size != other.size()) return false
 
+        val otherIter = other.iterator()
+        iterateLeft {
+            if (it != otherIter.next()) return false
+        }
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var hashCode = 1;
+        iterateLeft {
+            hashCode = 31*hashCode + it.hashCode();
+        }
+        return hashCode
+    }
 
     override fun toString(): String {
         if (size == 0) return "[List []]"
