@@ -7,7 +7,7 @@ public trait Either<A : Any, B : Any> : Functor<B> {
         fun <A : Any, B : Any> ofRight(value: B) = Right<A, B>(value)
     }
 
-    override fun <C : Any> fmap(fn: (B) -> C): Either<A, C>
+    override fun <C : Any> map(fn: (B) -> C): Either<A, C>
 
     fun component1(): A?
     fun component2(): B?
@@ -20,7 +20,7 @@ public trait Either<A : Any, B : Any> : Functor<B> {
 }
 
 public class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
-    override fun <C : Any> fmap(fn: (B) -> C): Either<A, C> = Left(value)
+    override fun <C : Any> map(fn: (B) -> C): Either<A, C> = Left(value)
     override fun toString(): String = "[Left ${value}]"
 
     override fun component1(): A? = value
@@ -44,7 +44,7 @@ public class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
 }
 
 public open class Right<A : Any, B : Any>(val value: B) : Either<A, B> {
-    override fun fmap<C : Any>(fn: (B) -> C): Right<A, C> = Right<A, C>(fn(value))
+    override fun map<C : Any>(fn: (B) -> C): Right<A, C> = Right<A, C>(fn(value))
     override fun toString(): String = "[Right ${value}]"
 
     override fun component1(): A? = null

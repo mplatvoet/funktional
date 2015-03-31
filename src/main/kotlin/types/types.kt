@@ -1,7 +1,7 @@
 package nl.mplatvoet.funktional.types
 
 public trait Functor<A : Any> {
-    fun fmap<B : Any>(fn: (A) -> B): Functor<B>
+    fun map<B : Any>(fn: (A) -> B): Functor<B>
 }
 
 /*

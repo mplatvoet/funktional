@@ -2,6 +2,7 @@ package nl.mplatvoet.funktional.examples
 
 import nl.mplatvoet.funktional.types.*
 import nl.mplatvoet.funktional.types.List
+import java.util.LinkedList
 
 
 fun main(args: Array<String>) {
@@ -11,12 +12,12 @@ fun main(args: Array<String>) {
     println(divide(3, 0))
 
     val fn: (Int) -> Int = { it + 3 }
-    println(divide(4, 2).right() fmap fn)
-    println(divide(3, 0).right() fmap fn)
+    println(divide(4, 2).right() map fn)
+    println(divide(3, 0).right() map fn)
 
 
-    val list = List.of(1, 2, 3, 4, 5, 6) fmap { it * it }
-    list.fold { println(it) }
+    val list = List.of(1, 2, 3, 4, 5, 6) map { it * it }
+    println(list)
 }
 
 val halfFn =
