@@ -15,6 +15,9 @@ fun main(args: Array<String>) {
     println(divide(4, 2).right() map fn)
     println(divide(3, 0).right() map fn)
 
+    val (l, r) = divide(6,3)
+    println(r map fn)
+
 
     val list = List.of(1, 2, 3, 4, 5, 6) map { it * it }
     println(list)

@@ -9,8 +9,8 @@ public trait Either<A : Any, B : Any> : Functor<B> {
 
     override fun <C : Any> map(fn: (B) -> C): Either<A, C>
 
-    fun component1(): A?
-    fun component2(): B?
+    fun component1(): Maybe<A>
+    fun component2(): Maybe<B>
 
     fun isLeft(): Boolean
     fun isRight(): Boolean
@@ -23,8 +23,8 @@ public class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
     override fun <C : Any> map(fn: (B) -> C): Either<A, C> = Left(value)
     override fun toString(): String = "[Left ${value}]"
 
-    override fun component1(): A? = value
-    override fun component2(): B? = null
+    override fun component1(): Maybe<A> = left()
+    override fun component2(): Maybe<B> = right()
 
     override fun isLeft(): Boolean = true
     override fun isRight(): Boolean = false
@@ -47,8 +47,8 @@ public open class Right<A : Any, B : Any>(val value: B) : Either<A, B> {
     override fun map<C : Any>(fn: (B) -> C): Right<A, C> = Right<A, C>(fn(value))
     override fun toString(): String = "[Right ${value}]"
 
-    override fun component1(): A? = null
-    override fun component2(): B? = value
+    override fun component1(): Maybe<A> = left()
+    override fun component2(): Maybe<B> = right()
 
     override fun isLeft(): Boolean = false
     override fun isRight(): Boolean = true
