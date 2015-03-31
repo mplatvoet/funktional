@@ -1,14 +1,16 @@
 package nl.mplatvoet.funktional.types
 
+import java.lang.ref.WeakReference
 import java.util.ArrayList
 import java.util.LinkedList
 import java.util.RandomAccess
+import java.util.concurrent.atomic.AtomicReference
 
 trait Seq<A : Any> : Functor<A> {
 
 }
 
-class List<A : Any> : Seq<A> {
+class List<A : Any> : Seq<A>, kotlin.List<A> {
     companion object {
         fun of<A : Any>(vararg values: A): List<A> {
             var head = List<A>()
@@ -19,6 +21,9 @@ class List<A : Any> : Seq<A> {
         }
 
         fun of<A : Any>(values: Iterable<A>): List<A> {
+            if (values is List) {
+                return values
+            }
             if (values is kotlin.List && values is RandomAccess) {
                 return fromRandomAccessList(values)
             }
@@ -28,7 +33,7 @@ class List<A : Any> : Seq<A> {
             return fromAnyIterable(values)
         }
 
-        private fun fromAnyIterable<A>(values: Iterable<A>) : List<A> {
+        private fun fromAnyIterable<A>(values: Iterable<A>): List<A> {
             var head = List<A>()
             values.reverse().forEach { a ->
                 head = head.prepend(a)
@@ -57,6 +62,8 @@ class List<A : Any> : Seq<A> {
         }
     }
 
+    private volatile var arrayCache : WeakReference<ArrayList<A>>? = null
+
     val size: Int
     private val value: A?
     private val rest: List<A>?
@@ -77,6 +84,58 @@ class List<A : Any> : Seq<A> {
         }
     }
 
+    override fun size(): Int = size
+
+    override fun isEmpty(): Boolean = size == 0
+
+    override fun contains(o: Any?): Boolean {
+        if (o == null) return false
+
+        iterateLeft {
+            if (it == o ) return true
+        }
+        return false
+    }
+
+    override fun iterator(): Iterator<A> = listIterator()
+
+    override fun containsAll(c: Collection<Any?>): Boolean {
+        if (this == c) return true;
+        c.forEach {
+            if (it == null || !contains(it)) return false
+        }
+        return true;
+    }
+
+    override fun get(index: Int): A {
+        if (index >= size || index < 0) throw IndexOutOfBoundsException("index: $index, size: $size")
+
+        var cnt = 0
+        iterateLeft {
+            if (cnt == index) return it
+            ++cnt
+        }
+        throw IllegalStateException("unreachable")
+    }
+
+    override fun indexOf(o: Any?): Int {
+        if (o == null) return -1
+        var cnt = 0
+        iterateLeft {
+            if (it == o) return cnt
+            ++cnt
+        }
+        return -1
+    }
+
+    override fun lastIndexOf(o: Any?): Int = if (o == null) -1 else asRandomAccessList().lastIndexOf(o)
+
+    override fun listIterator(): ListIterator<A> = WrappedListIterator(asRandomAccessList().listIterator())
+
+    override fun listIterator(index: Int): ListIterator<A> = WrappedListIterator(asRandomAccessList().listIterator(index))
+
+    override fun subList(fromIndex: Int, toIndex: Int): kotlin.List<A> = List.of(asRandomAccessList().subList(fromIndex, toIndex))
+
 
     override fun <B : Any> map(fn: (A) -> B): List<B> {
         var head = List<B>()
@@ -91,13 +150,12 @@ class List<A : Any> : Seq<A> {
     fun foldl(fn: (A) -> Unit) = iterateLeft(fn)
 
     fun foldr(fn: (A) -> Unit) {
-        //avoiding recursion, otherwise we might blow the stack
-        //rather making a copy in a Random Access list
         val list = asRandomAccessList()
         for (i in (0..list.size() - 1).reversed()) {
             fn(list[i])
         }
     }
+
 
 
     override fun toString(): String {
@@ -119,9 +177,16 @@ class List<A : Any> : Seq<A> {
     }
 
     private fun asRandomAccessList(): ArrayList<A> {
-        val list = ArrayList<A>()
-        iterateLeft { list add it }
-        return list
+        val cachedList = arrayCache?.get()
+        if (cachedList == null) {
+            val list = ArrayList<A>()
+            iterateLeft { list add it }
+
+            // don't care about concurrent updates, just don't block
+            arrayCache = WeakReference(list)
+            return list
+        }
+        return cachedList
     }
 
     private inline
@@ -135,4 +200,6 @@ class List<A : Any> : Seq<A> {
             elem = elem!!.rest
         } while (elem != null)
     }
+
+    private class WrappedListIterator<A>(private val target: ListIterator<A>) : ListIterator<A> by target
 }
