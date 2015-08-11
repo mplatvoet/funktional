@@ -24,7 +24,7 @@ public data class Failure<A : Any>(val value: Throwable) : Try<A> {
 
     override fun toString(): String {
         val errorMsg = value.getMessage()
-        return "[Failure ${if (errorMsg.isNotEmpty()) "\"${errorMsg}\"" else value.javaClass.getSimpleName()}]"
+        return "[Failure ${if (errorMsg != null && errorMsg.isNotEmpty()) "\"${errorMsg}\"" else value.javaClass.getSimpleName()}]"
     }
 }
 

@@ -1,7 +1,6 @@
 package nl.mplatvoet.funktional.examples
 
 import nl.mplatvoet.funktional.types.*
-import nl.mplatvoet.funktional.types.List
 import java.util.LinkedList
 
 
@@ -17,10 +16,6 @@ fun main(args: Array<String>) {
 
     val (l, r) = divide(6,3)
     println(r map fn)
-
-
-    val list = List.of(1, 2, 3, 4, 5, 6) map { it * it }
-    println(list)
 }
 
 val halfFn =
