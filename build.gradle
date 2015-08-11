@@ -5,9 +5,10 @@ allprojects {
     }
 }
 buildscript {
+    ext.kotlinVersion = '0.12.1230'
     repositories { mavenCentral() }
     dependencies {
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:0.11.91'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
 repositories { mavenCentral() }
@@ -15,7 +16,7 @@ repositories { mavenCentral() }
 apply plugin: 'kotlin'
 
 dependencies {
-    compile 'org.jetbrains.kotlin:kotlin-stdlib:0.11.91'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 }
 
 task release() {
@@ -26,6 +27,10 @@ gradle.taskGraph.whenReady {
     allprojects*.version = it.hasTask(release) ? appVersion : appVersion + '-SNAPSHOT'
     allprojects*.group = appGroup
 }
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.5'
+}
+
 
 defaultTasks 'clean', 'release'
 

@@ -1,7 +1,7 @@
 package nl.mplatvoet.funktional.types
 
 
-public trait Either<A : Any, B : Any> : Functor<B> {
+public interface Either<A : Any, B : Any> : Functor<B> {
     companion object {
         fun <A : Any, B : Any> ofLeft(value: A) = Left<A, B>(value)
         fun <A : Any, B : Any> ofRight(value: B) = Right<A, B>(value)
@@ -17,6 +17,8 @@ public trait Either<A : Any, B : Any> : Functor<B> {
 
     fun left() : Maybe<A>
     fun right() : Maybe<B>
+
+    fun swap() : Either<B, A>
 }
 
 public class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
@@ -31,6 +33,8 @@ public class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
 
     override fun left(): Maybe<A> = Just(value)
     override fun right(): Maybe<B> = Nothing.of()
+
+    override fun swap(): Either<B, A> = Either.ofRight(value)
 
     override fun equals(other: Any?): Boolean {
         if (this.identityEquals(other)) return true
@@ -55,6 +59,8 @@ public open class Right<A : Any, B : Any>(val value: B) : Either<A, B> {
 
     override fun left(): Maybe<A> = Nothing.of()
     override fun right(): Maybe<B> = Just(value)
+
+    override fun swap(): Either<B, A> = Either.ofLeft(value)
 
     override fun equals(other: Any?): Boolean {
         if (this.identityEquals(other)) return true

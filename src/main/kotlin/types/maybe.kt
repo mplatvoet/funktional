@@ -1,7 +1,7 @@
 package nl.mplatvoet.funktional.types
 
 
-public trait Maybe<A : Any> : Functor<A> {
+public interface Maybe<A : Any> : Functor<A> {
     companion object {
         fun of<A : Any>(value: A?): Maybe<A> = if (value == null) Nothing.of() else Just(value)
     }

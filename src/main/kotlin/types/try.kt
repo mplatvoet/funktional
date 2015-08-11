@@ -1,6 +1,6 @@
 package nl.mplatvoet.funktional.types
 
-public trait Try<A : Any> : Functor<A> {
+public interface Try<A : Any> : Functor<A> {
     companion object {
         fun of<A : Any>(value: A) : Try<A> = Success(value)
     }

@@ -5,14 +5,15 @@ import java.util.ArrayList
 import java.util.LinkedList
 import java.util.RandomAccess
 
-trait Seq<A : Any> : Functor<A> {
+interface Seq<A : Any> : Functor<A> {
 
 }
 
 class List<A : Any> : Seq<A>, kotlin.List<A> {
+
     companion object {
         fun of<A : Any>(vararg values: A): List<A> {
-            var head = List<A>()
+            var head = nullList<A>()
             for (i in (0..values.size() - 1).reversed()) {
                 head = head prepend values[i]
             }
@@ -33,53 +34,55 @@ class List<A : Any> : Seq<A>, kotlin.List<A> {
         }
 
         private fun fromAnyIterable<A>(values: Iterable<A>): List<A> {
-            var head = List<A>()
+            var head = nullList<A>()
             values.reverse().forEach { a ->
-                head = head.prepend(a)
+                head = head prepend a
             }
             return head
         }
 
         private fun fromLinkedList<A>(values: LinkedList<A>): List<A> {
-            var head = List<A>()
+            var head = nullList<A>()
             if (values.isEmpty()) return head
             val iterator = values.listIterator(values.size())
             do {
-                head = head.prepend(iterator.previous())
+                head = head prepend iterator.previous()
             } while (iterator.hasPrevious())
 
             return head
         }
 
         private fun fromRandomAccessList<A>(values: kotlin.List<A>): List<A> /*where T: RandomAccess*/ {
-            var head = List<A>()
+            var head = nullList<A>()
             if (values.isEmpty()) return head
             for (i in (0..values.size() - 1).reversed()) {
                 head = head prepend values[i]
             }
             return head
         }
+
+
     }
 
     private volatile var arrayCache: WeakReference<ArrayList<A>>? = null
 
     val size: Int
-    private val value: A?
-    private val rest: List<A>?
+    private val value: A
+    private val rest: List<A>
 
-    constructor() : this(null, null) {
+
+
+    constructor(value: A) : this(value, nullList()) {
     }
 
-    constructor(value: A) : this(value, null) {
-    }
-
-    private constructor(value: A?, rest: List<A>?) {
+    private constructor(value: A, rest: List<A>) {
         this.value = value
         this.rest = rest
+
         size = when {
-            rest != null -> 1 + rest.size
-            value != null -> 1
-            else -> 0
+            this.identityEquals(nullList) -> 0
+            rest.identityEquals(rest) -> 1
+            else -> 1 + rest.size
         }
     }
 
@@ -140,7 +143,7 @@ class List<A : Any> : Seq<A>, kotlin.List<A> {
 
 
     override fun <B : Any> map(fn: (A) -> B): List<B> {
-        var head = List<B>()
+        var head = nullList<B>()
         foldr { a -> head = head.prepend(fn(a)) }
         return head
     }
@@ -212,15 +215,18 @@ class List<A : Any> : Seq<A>, kotlin.List<A> {
 
     private inline
     fun iterateLeft(fn: (A) -> Unit) {
-        var elem: List<A>? = this
-        do {
-            val current = elem!!.value
-            if (current != null) {
-                fn (current)
-            }
-            elem = elem!!.rest
-        } while (elem != null)
+        var elem: List<A> = this
+        while (elem != nullList) {
+            fn(elem.value)
+            elem = elem.rest
+        }
     }
 
     private class WrappedListIterator<A>(private val target: ListIterator<A>) : ListIterator<A> by target
 }
+
+private val nullList = List(Any())
+
+suppress("CAST_NEVER_SUCCEEDS")
+private fun nullList<A>() : List<A> = nullList as List<A>
+
