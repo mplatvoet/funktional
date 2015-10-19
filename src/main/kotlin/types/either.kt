@@ -9,24 +9,24 @@ public interface Either<A : Any, B : Any> : Functor<B> {
 
     override fun <C : Any> map(fn: (B) -> C): Either<A, C>
 
-    fun component1(): Maybe<A>
-    fun component2(): Maybe<B>
+    operator fun component1(): Maybe<A>
+    operator fun component2(): Maybe<B>
 
     fun isLeft(): Boolean
     fun isRight(): Boolean
 
-    fun left() : Maybe<A>
-    fun right() : Maybe<B>
+    fun left(): Maybe<A>
+    fun right(): Maybe<B>
 
-    fun swap() : Either<B, A>
+    fun swap(): Either<B, A>
 }
 
 public class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
     override fun <C : Any> map(fn: (B) -> C): Either<A, C> = Left(value)
-    override fun toString(): String = "[Left ${value}]"
+    override fun toString(): String = "[Left $value]"
 
-    override fun component1(): Maybe<A> = left()
-    override fun component2(): Maybe<B> = right()
+    operator override fun component1(): Maybe<A> = left()
+    operator override fun component2(): Maybe<B> = right()
 
     override fun isLeft(): Boolean = true
     override fun isRight(): Boolean = false
@@ -37,7 +37,7 @@ public class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
     override fun swap(): Either<B, A> = Either.ofRight(value)
 
     override fun equals(other: Any?): Boolean {
-        if (this.identityEquals(other)) return true
+        if (this === other) return true
         if (other !is Left<*, *>) return false
 
         if (this.hashCode() != other.hashCode()) return false
@@ -49,7 +49,7 @@ public class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
 
 public open class Right<A : Any, B : Any>(val value: B) : Either<A, B> {
     override fun map<C : Any>(fn: (B) -> C): Right<A, C> = Right<A, C>(fn(value))
-    override fun toString(): String = "[Right ${value}]"
+    override fun toString(): String = "[Right $value]"
 
     override fun component1(): Maybe<A> = left()
     override fun component2(): Maybe<B> = right()
@@ -63,7 +63,7 @@ public open class Right<A : Any, B : Any>(val value: B) : Either<A, B> {
     override fun swap(): Either<B, A> = Either.ofLeft(value)
 
     override fun equals(other: Any?): Boolean {
-        if (this.identityEquals(other)) return true
+        if (this === other) return true
         if (other !is Right<*, *>) return false
 
         if (this.hashCode() != other.hashCode()) return false

@@ -5,7 +5,7 @@ allprojects {
     }
 }
 buildscript {
-    ext.kotlinVersion = '0.12.1230'
+    ext.kotlinVersion = '0.14.451'
     repositories { mavenCentral() }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -28,7 +28,7 @@ gradle.taskGraph.whenReady {
     allprojects*.group = appGroup
 }
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+    gradleVersion = '2.7'
 }
 
 
