@@ -11,14 +11,16 @@ public interface Maybe<A : Any> : Functor<A> {
     fun <B : Any> apply(f: Maybe<(A) -> B>): Maybe<B>
 }
 
-public class Nothing<A> : Maybe<A> {
+public class Nothing<A : Any> : Maybe<A> {
     companion object {
         private val instance = Nothing<Any>()
 
-        suppress("CAST_NEVER_SUCCEEDS")
-        fun of<A>() : Nothing<A> = instance as Nothing<A>
+        @Suppress("CAST_NEVER_SUCCEEDS")
+        fun of<A : Any>(): Nothing<A> = instance as Nothing<A>
     }
-    private constructor() {}
+
+    private constructor() {
+    }
 
     override fun <B : Any> apply(f: Maybe<(A) -> B>): Maybe<B> = Nothing()
     override fun <B : Any> map(fn: (A) -> B): Maybe<B> = Nothing()
@@ -27,12 +29,12 @@ public class Nothing<A> : Maybe<A> {
 }
 
 
-
-public data class Just<A>(val value: A) : Maybe<A> {
-    override fun <B : Any> apply(f: Maybe<(A) -> B>): Maybe<B> = when(f) {
+public data class Just<A : Any>(val value: A) : Maybe<A> {
+    override fun <B : Any> apply(f: Maybe<(A) -> B>): Maybe<B> = when (f) {
         is Just -> Just(f.value(value))
         else -> Nothing.of()
     }
+
     override fun <B : Any> map(fn: (A) -> B): Just<B> = Just(fn(value))
     override fun bind<B : Any>(fn: (A) -> Maybe<B>): Maybe<B> = fn(value)
     override fun toString(): String = "[Just ${value}]"
