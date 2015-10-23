@@ -3,12 +3,12 @@ package nl.mplatvoet.funktional.types
 
 public interface Maybe<A : Any> : Functor<A> {
     companion object {
-        fun of<A : Any>(value: A?): Maybe<A> = if (value == null) Nothing.of() else Just(value)
+        fun <A : Any> of(value: A?): Maybe<A> = if (value == null) Nothing.of() else Just(value)
     }
 
-    override fun map<B : Any>(fn: (A) -> B): Maybe<B>
-    fun bind<B : Any>(fn: (A) -> Maybe<B>): Maybe<B>
-    fun <B : Any> apply(f: Maybe<(A) -> B>): Maybe<B>
+    override fun <B : Any> map(fn: (A) -> B): Maybe<B>
+    infix fun <B : Any> bind(fn: (A) -> Maybe<B>): Maybe<B>
+    infix fun <B : Any> apply(f: Maybe<(A) -> B>): Maybe<B>
 }
 
 public class Nothing<A : Any> : Maybe<A> {
@@ -16,15 +16,15 @@ public class Nothing<A : Any> : Maybe<A> {
         private val instance = Nothing<Any>()
 
         @Suppress("CAST_NEVER_SUCCEEDS")
-        fun of<A : Any>(): Nothing<A> = instance as Nothing<A>
+        fun <A : Any> of(): Nothing<A> = instance as Nothing<A>
     }
 
     private constructor() {
     }
 
-    override fun <B : Any> apply(f: Maybe<(A) -> B>): Maybe<B> = Nothing()
-    override fun <B : Any> map(fn: (A) -> B): Maybe<B> = Nothing()
-    override fun bind<B : Any>(fn: (A) -> Maybe<B>): Nothing<B> = Nothing()
+    override infix fun <B : Any> apply(f: Maybe<(A) -> B>): Maybe<B> = Nothing()
+    override infix fun <B : Any> map(fn: (A) -> B): Maybe<B> = Nothing()
+    override infix fun <B : Any> bind(fn: (A) -> Maybe<B>): Nothing<B> = Nothing()
     override fun toString(): String = "[Nothing]"
 }
 
@@ -35,8 +35,8 @@ public data class Just<A : Any>(val value: A) : Maybe<A> {
         else -> Nothing.of()
     }
 
-    override fun <B : Any> map(fn: (A) -> B): Just<B> = Just(fn(value))
-    override fun bind<B : Any>(fn: (A) -> Maybe<B>): Maybe<B> = fn(value)
+    override infix fun <B : Any> map(fn: (A) -> B): Just<B> = Just(fn(value))
+    override infix fun <B : Any> bind(fn: (A) -> Maybe<B>): Maybe<B> = fn(value)
     override fun toString(): String = "[Just ${value}]"
 }
 

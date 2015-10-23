@@ -48,7 +48,7 @@ public class Left<A : Any, B : Any>(val value: A) : Either<A, B> {
 }
 
 public open class Right<A : Any, B : Any>(val value: B) : Either<A, B> {
-    override fun map<C : Any>(fn: (B) -> C): Right<A, C> = Right<A, C>(fn(value))
+    override fun <C : Any> map(fn: (B) -> C): Right<A, C> = Right<A, C>(fn(value))
     override fun toString(): String = "[Right $value]"
 
     override fun component1(): Maybe<A> = left()

@@ -1,7 +1,7 @@
 package nl.mplatvoet.funktional.types
 
 public interface Functor<A : Any> {
-    fun map<B : Any>(fn: (A) -> B): Functor<B>
+    infix fun <B : Any> map(fn: (A) -> B): Functor<B>
 }
 
 /*
