@@ -1,7 +1,6 @@
 package nl.mplatvoet.funktional.examples
 
 import nl.mplatvoet.funktional.types.*
-import java.util.LinkedList
 
 
 fun main(args: Array<String>) {
@@ -20,7 +19,7 @@ fun main(args: Array<String>) {
 
 val halfFn =
         fun (a: Int): Try<Int> {
-            return if (a and 1 == 1) Failure(IllegalStateException("$a is uneven")) else Success(a / 2)
+            return if (a and 1 == 1) Try.Failure(IllegalStateException("$a is uneven")) else Try.Success(a / 2)
         }
 
 fun divide(x: Int, y: Int): Either<String, Int> =
